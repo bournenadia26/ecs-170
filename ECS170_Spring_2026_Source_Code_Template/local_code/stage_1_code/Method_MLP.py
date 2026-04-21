@@ -140,8 +140,12 @@ class Method_MLP(method, nn.Module):
 =======
             if epoch%100 == 0:
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
+<<<<<<< HEAD
                 print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
 >>>>>>> 5788125 (initial commit)
+=======
+                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item()) # a little uninformative for epochs=100
+>>>>>>> 6848cdd (tune_mlp() import error resolved)
     
     def test(self, X):
         # do the testing, and result the result
@@ -171,11 +175,14 @@ class Method_MLP(method, nn.Module):
         learning_rates = [1e-3, 1e-4] # learning rates
         epoch_counts = [100, 300, 500] # epochs
 
+<<<<<<< HEAD
         # for plotting test
         # hidden_sizes = [256]
         # learning_rates = [1e-3]
         # epoch_counts = [50]
 
+=======
+>>>>>>> 6848cdd (tune_mlp() import error resolved)
         best_accuracy = 0
         best_config = None
         best_history = None
@@ -213,18 +220,25 @@ class Method_MLP(method, nn.Module):
                             'acc_history': result['acc_history']
                         }
 
+<<<<<<< HEAD
         print('\n----- BEST CONFIG:', best_config, '| Accuracy:', best_accuracy, '-----')
         return {
             'best_config': best_config,
             'best_accuracy': best_accuracy,
             'best_history': best_history
         }
+=======
+        print('\n*** Best config:', best_config, '| Accuracy:', best_accuracy, '***')
+>>>>>>> 6848cdd (tune_mlp() import error resolved)
 
 
 def tune_mlp(data):
     """Module-level wrapper so callers can import tune_mlp directly."""
     return Method_MLP.tune_mlp(data)
+<<<<<<< HEAD
 =======
         return {'pred_y': pred_y, 'true_y': self.data['test']['y']}
             
 >>>>>>> 5788125 (initial commit)
+=======
+>>>>>>> 6848cdd (tune_mlp() import error resolved)
