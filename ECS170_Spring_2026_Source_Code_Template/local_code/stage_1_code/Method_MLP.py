@@ -221,6 +221,7 @@ class Method_MLP(method, nn.Module):
                         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         print('\n----- BEST CONFIG:', best_config, '| Accuracy:', best_accuracy, '-----')
         return {
             'best_config': best_config,
@@ -230,6 +231,9 @@ class Method_MLP(method, nn.Module):
 =======
         print('\n*** Best config:', best_config, '| Accuracy:', best_accuracy, '***')
 >>>>>>> 6848cdd (tune_mlp() import error resolved)
+=======
+        print('\n----- BEST CONFIG:', best_config, '| Accuracy:', best_accuracy, '-----')
+>>>>>>> ae1001f (improved clarity for reading output print statements)
 
 
 def tune_mlp(data):
