@@ -1,3 +1,25 @@
+<<<<<<< HEAD
+from pathlib import Path
+import sys
+
+# Ensure imports work no matter where the script is launched from.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from local_code.stage_2_code.Dataset_Loader import Dataset_Loader
+from local_code.stage_2_code.Method_MLP import Method_MLP
+from local_code.stage_1_code.Result_Saver import Result_Saver
+#from local_code.stage_1_code.Setting_KFold_CV import Setting_KFold_CV
+=======
+from local_code.stage_1_code.Dataset_Loader import Dataset_Loader
+from local_code.stage_1_code.Method_MLP import Method_MLP, tune_mlp
+from local_code.stage_1_code.Result_Saver import Result_Saver
+from local_code.stage_1_code.Setting_KFold_CV import Setting_KFold_CV
+>>>>>>> 24bef01 (copied script_mlp into stage_2, tweaked for given dataset, called autotuning method)
+from local_code.stage_1_code.Setting_Train_Test_Split import Setting_Train_Test_Split
+from local_code.stage_1_code.Evaluate_Accuracy import Evaluate_Accuracy
+import numpy as np
 from pathlib import Path
 import sys
 
@@ -117,3 +139,4 @@ if 1:
     plt.savefig(str(plot_save_path))
     print(f"Plot saved to {plot_save_path}")
     plt.show()
+    loaded_data = data_obj.load()
