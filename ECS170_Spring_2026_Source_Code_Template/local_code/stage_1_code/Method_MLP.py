@@ -26,12 +26,22 @@ class Method_MLP(method, nn.Module):
         method.__init__(self, mName, mDescription)
         nn.Module.__init__(self)
         # check here for nn.Linear doc: https://pytorch.org/docs/stable/generated/torch.nn.Linear.html
-        self.fc_layer_1 = nn.Linear(4, 4)
+        #self.fc_layer_1 = nn.Linear(4, 4)
         # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
-        self.activation_func_1 = nn.ReLU()
-        self.fc_layer_2 = nn.Linear(4, 2)
+        #self.activation_func_1 = nn.ReLU()
+        #self.fc_layer_2 = nn.Linear(4, 2)
         # check here for nn.Softmax doc: https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html
-        self.activation_func_2 = nn.Softmax(dim=1)
+        #self.activation_func_2 = nn.Softmax(dim=1)
+
+        """Fundamental restructure bc we're not working with tiny toy dataset anymore"""
+        self._build_model(hidden_size=256)
+
+    def _build_model(self, hidden_size=256): # 2 hidden layers. feel free to tweak to more. compresses to 256 neurons.
+        self.fc_layer_1 = nn.Linear(784, hidden_size) #<- stage 2 number of features
+        self.activation_func_1 = nn.ReLU()
+        self.fc_layer_2 = nn.Linear(hidden_size, hidden_size)
+        self.activation_func_2 = nn.ReLU()
+        self.fc_layer_3 = nn.Linear(hidden_size, 10)
 
     # it defines the forward propagation function for input x
     # this function will calculate the output layer by layer
@@ -39,12 +49,13 @@ class Method_MLP(method, nn.Module):
     def forward(self, x):
         '''Forward propagation'''
         # hidden layer embeddings
-        h = self.activation_func_1(self.fc_layer_1(x))
+        h1 = self.activation_func_1(self.fc_layer_1(x))
+        h2 = self.activation_func_2(self.fc_layer_2(h1))
         # outout layer result
         # self.fc_layer_2(h) will be a nx2 tensor
         # n (denotes the input instance number): 0th dimension; 2 (denotes the class number): 1st dimension
         # we do softmax along dim=1 to get the normalized classification probability distributions for each instance
-        y_pred = self.activation_func_2(self.fc_layer_2(h))
+        y_pred = self.fc_layer_3(h2)
         return y_pred
 
     # backward error propagation will be implemented by pytorch automatically
@@ -57,6 +68,8 @@ class Method_MLP(method, nn.Module):
         loss_function = nn.CrossEntropyLoss()
         # for training accuracy investigation purpose
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
+
+        self.loss_history = [] # for storage so we can see
 
         # it will be an iterative gradient updating process
         # we don't do mini-batch, we use the whole input as one batch
@@ -96,4 +109,44 @@ class Method_MLP(method, nn.Module):
         print('--start testing...')
         pred_y = self.test(self.data['test']['X'])
         return {'pred_y': pred_y, 'true_y': self.data['test']['y']}
-            
+
+    """Method to auto-tune hyperparameters. Tries every combination of listed hypparams and prints the results."""
+    def tune_mlp(data):
+        # Feel free to modify and see what works better!!
+        hidden_sizes = [128, 256, 512] # neurons per layer
+        learning_rates = [1e-3, 1e-4] # learning rates
+        epoch_counts = [100, 300, 500] # epochs
+
+        best_f1 = 0
+        best_config = None
+
+        for hidden_size in hidden_sizes: # for every combination of every hyperparam:
+            for lr in learning_rates:
+                for epochs in epoch_counts:
+                    print(f'\n--- Trying hidden={hidden_size}, lr={lr}, epochs={epochs} ---')
+
+                    model = Method_MLP('mlp', '')
+                    model._build_model(hidden_size=hidden_size)
+                    model.learning_rate = lr
+                    model.max_epoch = epochs
+                    model.data = data
+
+                    result = model.run()
+
+                    pred_y = result['pred_y'].numpy()
+                    true_y = np.array(result['true_y'])
+
+                    # metrics
+                    accuracy = np.mean(pred_y == true_y)
+                    precision = precision_score(true_y, pred_y, average='weighted')
+                    recall = recall_score(true_y, pred_y, average='weighted')
+                    f1 = f1_score(true_y, pred_y, average='weighted')
+
+
+                    print(f'Accuracy: {accuracy:.4f} | Precision: {precision:.4f} | Recall: {recall:.4f} | F1: {f1:.4f}')
+
+                    if accuracy > best_accuracy: # best model is judged purely by accuracy
+                        best_accuracy = accuracy
+                        best_config = {'hidden_size': hidden_size, 'lr': lr, 'epochs': epochs}
+
+        print('\n*** Best config:', best_config, '| Accuracy:', best_accuracy, '***')

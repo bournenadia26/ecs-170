@@ -21,7 +21,6 @@ class Setting_Train_Test_Split(setting):
 
         # run MethodModule
         #self.method.data = {'train': {'X': X_train, 'y': y_train}, 'test': {'X': X_test, 'y': y_test}} # <-- ORIGINAL
-        
         # data is pre-split into train and test files, no splitting needed
         self.method.data = {
             'train': {'X': loaded_data['train']['X'], 'y': loaded_data['train']['y']},
