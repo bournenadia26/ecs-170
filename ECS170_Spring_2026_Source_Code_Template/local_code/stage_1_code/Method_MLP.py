@@ -59,8 +59,8 @@ class Method_MLP(method, nn.Module):
 =======
         self.fc_layer_1 = nn.Linear(4, 4)
         # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
-        self.activation_func_1 = nn.ReLU()
-        self.fc_layer_2 = nn.Linear(4, 2)
+        #self.activation_func_1 = nn.ReLU()
+        #self.fc_layer_2 = nn.Linear(4, 2)
         # check here for nn.Softmax doc: https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html
         self.activation_func_2 = nn.Softmax(dim=1)
 
@@ -77,7 +77,8 @@ class Method_MLP(method, nn.Module):
 =======
         '''Forward propagation'''
         # hidden layer embeddings
-        h = self.activation_func_1(self.fc_layer_1(x))
+        h1 = self.activation_func_1(self.fc_layer_1(x))
+        h2 = self.activation_func_2(self.fc_layer_2(h1))
         # outout layer result
         # self.fc_layer_2(h) will be a nx2 tensor
         # n (denotes the input instance number): 0th dimension; 2 (denotes the class number): 1st dimension
