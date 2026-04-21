@@ -93,7 +93,7 @@ class Method_MLP(method, nn.Module):
 
             if epoch%100 == 0:
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
+                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item()) # a little uninformative for epochs=100
     
     def test(self, X):
         # do the testing, and result the result
@@ -110,14 +110,15 @@ class Method_MLP(method, nn.Module):
         pred_y = self.test(self.data['test']['X'])
         return {'pred_y': pred_y, 'true_y': self.data['test']['y']}
 
-    """Method to auto-tune hyperparameters. Tries every combination of listed hypparams and prints the results."""
+    """Method to auto-tune hyperparameters. Tries every combination of listed hyperparams and prints the results."""
+    @staticmethod
     def tune_mlp(data):
         # Feel free to modify and see what works better!!
         hidden_sizes = [128, 256, 512] # neurons per layer
         learning_rates = [1e-3, 1e-4] # learning rates
         epoch_counts = [100, 300, 500] # epochs
 
-        best_f1 = 0
+        best_accuracy = 0
         best_config = None
 
         for hidden_size in hidden_sizes: # for every combination of every hyperparam:
@@ -150,3 +151,8 @@ class Method_MLP(method, nn.Module):
                         best_config = {'hidden_size': hidden_size, 'lr': lr, 'epochs': epochs}
 
         print('\n*** Best config:', best_config, '| Accuracy:', best_accuracy, '***')
+
+
+def tune_mlp(data):
+    """Module-level wrapper so callers can import tune_mlp directly."""
+    return Method_MLP.tune_mlp(data)
