@@ -20,7 +20,13 @@ class Setting_Train_Test_Split(setting):
         X_train, X_test, y_train, y_test = train_test_split(loaded_data['X'], loaded_data['y'], test_size = 0.33)
 
         # run MethodModule
-        self.method.data = {'train': {'X': X_train, 'y': y_train}, 'test': {'X': X_test, 'y': y_test}}
+        #self.method.data = {'train': {'X': X_train, 'y': y_train}, 'test': {'X': X_test, 'y': y_test}} # <-- ORIGINAL
+        
+        # data is pre-split into train and test files, no splitting needed
+        self.method.data = {
+            'train': {'X': loaded_data['train']['X'], 'y': loaded_data['train']['y']},
+            'test': {'X': loaded_data['test']['X'], 'y': loaded_data['test']['y']}
+        }
         learned_result = self.method.run()
             
         # save raw ResultModule
