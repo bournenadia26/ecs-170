@@ -11,10 +11,14 @@ import torch
 from torch import nn
 import numpy as np
 <<<<<<< HEAD
+<<<<<<< HEAD
 from sklearn.metrics import precision_score, recall_score, f1_score
 =======
 
 >>>>>>> 5788125 (initial commit)
+=======
+from sklearn.metrics import precision_score, recall_score, f1_score
+>>>>>>> bc33ae7 (import scikit learn in Method_MLP oops sorry)
 
 class Method_MLP(method, nn.Module):
     data = None
