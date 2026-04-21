@@ -10,7 +10,7 @@ from local_code.stage_1_code.Evaluate_Accuracy import Evaluate_Accuracy
 import torch
 from torch import nn
 import numpy as np
-
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 class Method_MLP(method, nn.Module):
     data = None
