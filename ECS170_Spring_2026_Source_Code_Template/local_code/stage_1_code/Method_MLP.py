@@ -143,14 +143,14 @@ class Method_MLP(method, nn.Module):
                     recall = recall_score(true_y, pred_y, average='weighted')
                     f1 = f1_score(true_y, pred_y, average='weighted')
 
-
+                    print("----- FINAL STATS -----")
                     print(f'Accuracy: {accuracy:.4f} | Precision: {precision:.4f} | Recall: {recall:.4f} | F1: {f1:.4f}')
 
                     if accuracy > best_accuracy: # best model is judged purely by accuracy
                         best_accuracy = accuracy
                         best_config = {'hidden_size': hidden_size, 'lr': lr, 'epochs': epochs}
 
-        print('\n*** Best config:', best_config, '| Accuracy:', best_accuracy, '***')
+        print('\n----- BEST CONFIG:', best_config, '| Accuracy:', best_accuracy, '-----')
 
 
 def tune_mlp(data):
