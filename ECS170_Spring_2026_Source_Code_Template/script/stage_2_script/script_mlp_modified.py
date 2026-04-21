@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 50f8de9 (pathname error fix)
 from pathlib import Path
 import sys
 
@@ -7,6 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+<<<<<<< HEAD
 from local_code.stage_2_code.Dataset_Loader import Dataset_Loader
 from local_code.stage_2_code.Method_MLP import Method_MLP
 from local_code.stage_1_code.Result_Saver import Result_Saver
@@ -31,6 +35,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from local_code.stage_2_code.Dataset_Loader import Dataset_Loader
 from local_code.stage_2_code.Method_MLP import Method_MLP
 from local_code.stage_1_code.Result_Saver import Result_Saver
+=======
+from local_code.stage_1_code.Dataset_Loader import Dataset_Loader
+from local_code.stage_1_code.Method_MLP import Method_MLP, tune_mlp
+from local_code.stage_1_code.Result_Saver import Result_Saver
+>>>>>>> 50f8de9 (pathname error fix)
 #from local_code.stage_1_code.Setting_KFold_CV import Setting_KFold_CV
 from local_code.stage_1_code.Setting_Train_Test_Split import Setting_Train_Test_Split
 from local_code.stage_1_code.Evaluate_Accuracy import Evaluate_Accuracy
@@ -46,10 +55,17 @@ if 1:
     #------------------------------------------------------
 
     # ---- objection initialization setction ---------------
+<<<<<<< HEAD
     data_folder = PROJECT_ROOT / "data" / "stage_2_data"
 
     data_obj = Dataset_Loader('MNIST', '')
     data_obj.dataset_source_folder_path = str(data_folder) + '/'
+=======
+    script_dir = Path(__file__).resolve().parent
+
+    data_obj = Dataset_Loader('MNIST', '')
+    data_obj.dataset_source_folder_path = str(script_dir) + '/'
+>>>>>>> 50f8de9 (pathname error fix)
     data_obj.dataset_source_file_name_train = 'train.csv'
     data_obj.dataset_source_file_name_test = 'test.csv'
 
