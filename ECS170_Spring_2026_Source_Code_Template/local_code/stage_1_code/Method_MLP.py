@@ -10,7 +10,11 @@ from local_code.stage_1_code.Evaluate_Accuracy import Evaluate_Accuracy
 import torch
 from torch import nn
 import numpy as np
+<<<<<<< HEAD
 from sklearn.metrics import precision_score, recall_score, f1_score
+=======
+
+>>>>>>> 5788125 (initial commit)
 
 class Method_MLP(method, nn.Module):
     data = None
@@ -26,6 +30,7 @@ class Method_MLP(method, nn.Module):
         method.__init__(self, mName, mDescription)
         nn.Module.__init__(self)
         # check here for nn.Linear doc: https://pytorch.org/docs/stable/generated/torch.nn.Linear.html
+<<<<<<< HEAD
         #self.fc_layer_1 = nn.Linear(4, 4)
         # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
         #self.activation_func_1 = nn.ReLU()
@@ -51,14 +56,34 @@ class Method_MLP(method, nn.Module):
         self.activation_func_2 = nn.ReLU()
         self.fc_layer_3 = nn.Linear(hidden_size, 10)
 
+=======
+        self.fc_layer_1 = nn.Linear(4, 4)
+        # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
+        self.activation_func_1 = nn.ReLU()
+        self.fc_layer_2 = nn.Linear(4, 2)
+        # check here for nn.Softmax doc: https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html
+        self.activation_func_2 = nn.Softmax(dim=1)
+
+>>>>>>> 5788125 (initial commit)
     # it defines the forward propagation function for input x
     # this function will calculate the output layer by layer
 
     def forward(self, x):
+<<<<<<< HEAD
         '''Forward propagation for toy dataset (4 features)'''
         h1 = self.activation_func_1(self.fc_layer_1(x))
         h2 = self.fc_layer_2(h1)
         y_pred = self.activation_func_2(h2)
+=======
+        '''Forward propagation'''
+        # hidden layer embeddings
+        h = self.activation_func_1(self.fc_layer_1(x))
+        # outout layer result
+        # self.fc_layer_2(h) will be a nx2 tensor
+        # n (denotes the input instance number): 0th dimension; 2 (denotes the class number): 1st dimension
+        # we do softmax along dim=1 to get the normalized classification probability distributions for each instance
+        y_pred = self.activation_func_2(self.fc_layer_2(h))
+>>>>>>> 5788125 (initial commit)
         return y_pred
 
     # backward error propagation will be implemented by pytorch automatically
@@ -72,8 +97,11 @@ class Method_MLP(method, nn.Module):
         # for training accuracy investigation purpose
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
 
+<<<<<<< HEAD
         self.loss_history = [] # for storage so we can see
 
+=======
+>>>>>>> 5788125 (initial commit)
         # it will be an iterative gradient updating process
         # we don't do mini-batch, we use the whole input as one batch
         # you can try to split X and y into smaller-sized batches by yourself
@@ -94,6 +122,7 @@ class Method_MLP(method, nn.Module):
             # update the variables according to the optimizer and the gradients calculated by the above loss.backward function
             optimizer.step()
 
+<<<<<<< HEAD
             # Compute training accuracy and record loss and accuracy for plotting
             pred_labels = y_pred.max(1)[1]
             current_acc = np.mean((pred_labels == y_true).numpy())
@@ -103,6 +132,11 @@ class Method_MLP(method, nn.Module):
             if (epoch + 1) % 10 == 0: # adjusted because epoch number starts at 0
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
                 print('Epoch:', epoch + 1, 'Accuracy:', current_acc, 'Loss:', train_loss.item()) # a little uninformative for epochs=100
+=======
+            if epoch%100 == 0:
+                accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
+                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
+>>>>>>> 5788125 (initial commit)
     
     def test(self, X):
         # do the testing, and result the result
@@ -117,6 +151,7 @@ class Method_MLP(method, nn.Module):
         self.train(self.data['train']['X'], self.data['train']['y'])
         print('--start testing...')
         pred_y = self.test(self.data['test']['X'])
+<<<<<<< HEAD
         return {'pred_y': pred_y,
                 'true_y': self.data['test']['y'],
                 'loss_history': self.loss_history,
@@ -184,3 +219,7 @@ class Method_MLP(method, nn.Module):
 def tune_mlp(data):
     """Module-level wrapper so callers can import tune_mlp directly."""
     return Method_MLP.tune_mlp(data)
+=======
+        return {'pred_y': pred_y, 'true_y': self.data['test']['y']}
+            
+>>>>>>> 5788125 (initial commit)

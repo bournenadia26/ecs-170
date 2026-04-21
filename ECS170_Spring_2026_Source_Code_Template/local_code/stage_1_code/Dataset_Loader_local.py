@@ -12,30 +12,23 @@ class Dataset_Loader(dataset):
     data = None
     dataset_source_folder_path = None
     dataset_source_file_name = None
-<<<<<<< HEAD
 
     # ADDED BC NO NEED TO SPLIT WITH THIS
     dataset_source_file_name_train = None
     dataset_source_file_name_test = None
-=======
->>>>>>> 5788125 (initial commit)
     
     def __init__(self, dName=None, dDescription=None):
         super().__init__(dName, dDescription)
     
     def load(self):
         print('loading data...')
-<<<<<<< HEAD
         """
         ORIGINAL CODE PRESERVED JUST IN CASE!!
-=======
->>>>>>> 5788125 (initial commit)
         X = []
         y = []
         f = open(self.dataset_source_folder_path + self.dataset_source_file_name, 'r')
         for line in f:
             line = line.strip('\n')
-<<<<<<< HEAD
             elements = [int(i) for i in line.strip().split()]
             X.append(elements[:-1])
             y.append(elements[-1])
@@ -58,33 +51,3 @@ class Dataset_Loader(dataset):
 
             X_test, y_test = [], []
             f = open(self.dataset_source_folder_path + self.dataset_source_file_name_test, 'r')
-            for line in f:
-                line = line.strip('\n')
-                elements = [int(i) for i in line.strip().split()]
-                y_test.append(elements[0])
-                X_test.append(elements[1:])
-            f.close()
-
-            return {
-                'train': {'X': X_train, 'y': y_train},
-                'test': {'X': X_test, 'y': y_test}
-            }
-        # Stage 1: Otherwise, load as single file with X/y
-        else:
-            X = []
-            y = []
-            f = open(self.dataset_source_folder_path + self.dataset_source_file_name, 'r')
-            for line in f:
-                line = line.strip('\n')
-                elements = [int(i) for i in line.strip().split()]
-                X.append(elements[:-1])
-                y.append(elements[-1])
-            f.close()
-            return {'X': X, 'y': y}
-=======
-            elements = [int(i) for i in line.split(' ')]
-            X.append(elements[:-1])
-            y.append(elements[-1])
-        f.close()
-        return {'X': X, 'y': y}
->>>>>>> 5788125 (initial commit)
