@@ -36,6 +36,10 @@ class Method_MLP(method, nn.Module):
         """Fundamental restructure bc we're not working with tiny toy dataset anymore"""
         self._build_model(hidden_size=256)
 
+        # loss and accuracy lists for plotting
+        self.loss_history = []
+        self.acc_history = []
+
     def _build_model(self, hidden_size=256): # 2 hidden layers. feel free to tweak to more. compresses to 256 neurons.
         self.fc_layer_1 = nn.Linear(784, hidden_size) #<- stage 2 number of features
         self.activation_func_1 = nn.ReLU()
@@ -91,9 +95,15 @@ class Method_MLP(method, nn.Module):
             # update the variables according to the optimizer and the gradients calculated by the above loss.backward function
             optimizer.step()
 
-            if epoch%100 == 0:
+            # Compute training accuracy and record loss and accuracy for plotting
+            pred_labels = y_pred.max(1)[1]
+            current_acc = np.mean((pred_labels == y_true).numpy())
+            self.loss_history.append(train_loss.item())
+            self.acc_history.append(current_acc)
+
+            if (epoch + 1) % 10 == 0: # adjusted because epoch number starts at 0
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item()) # a little uninformative for epochs=100
+                print('Epoch:', epoch + 1, 'Accuracy:', current_acc, 'Loss:', train_loss.item()) # a little uninformative for epochs=100
     
     def test(self, X):
         # do the testing, and result the result
@@ -108,7 +118,11 @@ class Method_MLP(method, nn.Module):
         self.train(self.data['train']['X'], self.data['train']['y'])
         print('--start testing...')
         pred_y = self.test(self.data['test']['X'])
-        return {'pred_y': pred_y, 'true_y': self.data['test']['y']}
+        return {'pred_y': pred_y,
+                'true_y': self.data['test']['y'],
+                'loss_history': self.loss_history,
+                'acc_history': self.acc_history
+        }
 
     """Method to auto-tune hyperparameters. Tries every combination of listed hyperparams and prints the results."""
     @staticmethod
@@ -118,8 +132,14 @@ class Method_MLP(method, nn.Module):
         learning_rates = [1e-3, 1e-4] # learning rates
         epoch_counts = [100, 300, 500] # epochs
 
+        # for plotting test
+        #hidden_sizes = [256]
+        #learning_rates = [1e-3]
+        #epoch_counts = [50]
+
         best_accuracy = 0
         best_config = None
+        best_history = None
 
         for hidden_size in hidden_sizes: # for every combination of every hyperparam:
             for lr in learning_rates:
@@ -149,8 +169,17 @@ class Method_MLP(method, nn.Module):
                     if accuracy > best_accuracy: # best model is judged purely by accuracy
                         best_accuracy = accuracy
                         best_config = {'hidden_size': hidden_size, 'lr': lr, 'epochs': epochs}
+                        best_history = {
+                            'loss_history': result['loss_history'],
+                            'acc_history': result['acc_history']
+                        }
 
         print('\n----- BEST CONFIG:', best_config, '| Accuracy:', best_accuracy, '-----')
+        return {
+            'best_config': best_config,
+            'best_accuracy': best_accuracy,
+            'best_history': best_history
+        }
 
 
 def tune_mlp(data):
