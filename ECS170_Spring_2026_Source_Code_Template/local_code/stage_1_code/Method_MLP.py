@@ -53,6 +53,10 @@ class Method_MLP(method, nn.Module):
         self.loss_history = []
         self.acc_history = []
 
+        # loss and accuracy lists for plotting
+        self.loss_history = []
+        self.acc_history = []
+
     def _build_model(self, hidden_size=256): # 2 hidden layers. feel free to tweak to more. compresses to 256 neurons.
         self.fc_layer_1 = nn.Linear(784, hidden_size) #<- stage 2 number of features
         self.activation_func_1 = nn.ReLU()
@@ -128,6 +132,9 @@ class Method_MLP(method, nn.Module):
             optimizer.step()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
             # Compute training accuracy and record loss and accuracy for plotting
             pred_labels = y_pred.max(1)[1]
             current_acc = np.mean((pred_labels == y_true).numpy())
@@ -135,6 +142,7 @@ class Method_MLP(method, nn.Module):
             self.acc_history.append(current_acc)
 
             if (epoch + 1) % 10 == 0: # adjusted because epoch number starts at 0
+<<<<<<< HEAD
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
                 print('Epoch:', epoch + 1, 'Accuracy:', current_acc, 'Loss:', train_loss.item()) # a little uninformative for epochs=100
 =======
@@ -146,6 +154,10 @@ class Method_MLP(method, nn.Module):
 =======
                 print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item()) # a little uninformative for epochs=100
 >>>>>>> 6848cdd (tune_mlp() import error resolved)
+=======
+                accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
+                print('Epoch:', epoch + 1, 'Accuracy:', current_acc, 'Loss:', train_loss.item()) # a little uninformative for epochs=100
+>>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
     
     def test(self, X):
         # do the testing, and result the result
@@ -161,6 +173,9 @@ class Method_MLP(method, nn.Module):
         print('--start testing...')
         pred_y = self.test(self.data['test']['X'])
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
         return {'pred_y': pred_y,
                 'true_y': self.data['test']['y'],
                 'loss_history': self.loss_history,
@@ -176,6 +191,7 @@ class Method_MLP(method, nn.Module):
         epoch_counts = [100, 300, 500] # epochs
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         # for plotting test
         # hidden_sizes = [256]
         # learning_rates = [1e-3]
@@ -183,6 +199,13 @@ class Method_MLP(method, nn.Module):
 
 =======
 >>>>>>> 6848cdd (tune_mlp() import error resolved)
+=======
+        # for plotting test
+        #hidden_sizes = [256]
+        #learning_rates = [1e-3]
+        #epoch_counts = [50]
+
+>>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
         best_accuracy = 0
         best_config = None
         best_history = None
@@ -228,12 +251,15 @@ class Method_MLP(method, nn.Module):
             'best_accuracy': best_accuracy,
             'best_history': best_history
         }
+<<<<<<< HEAD
 =======
         print('\n*** Best config:', best_config, '| Accuracy:', best_accuracy, '***')
 >>>>>>> 6848cdd (tune_mlp() import error resolved)
 =======
         print('\n----- BEST CONFIG:', best_config, '| Accuracy:', best_accuracy, '-----')
 >>>>>>> ae1001f (improved clarity for reading output print statements)
+=======
+>>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
 
 
 def tune_mlp(data):

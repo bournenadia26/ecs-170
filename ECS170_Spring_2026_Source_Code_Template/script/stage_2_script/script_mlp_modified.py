@@ -56,6 +56,7 @@ if 1:
 
     # ---- objection initialization setction ---------------
 <<<<<<< HEAD
+<<<<<<< HEAD
     data_folder = PROJECT_ROOT / "data" / "stage_2_data"
 
     data_obj = Dataset_Loader('MNIST', '')
@@ -66,6 +67,12 @@ if 1:
     data_obj = Dataset_Loader('MNIST', '')
     data_obj.dataset_source_folder_path = str(script_dir) + '/'
 >>>>>>> 50f8de9 (pathname error fix)
+=======
+    data_folder = PROJECT_ROOT / "data" / "stage_2_data"
+
+    data_obj = Dataset_Loader('MNIST', '')
+    data_obj.dataset_source_folder_path = str(data_folder) + '/'
+>>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
     data_obj.dataset_source_file_name_train = 'train.csv'
     data_obj.dataset_source_file_name_test = 'test.csv'
 
@@ -86,6 +93,7 @@ if 1:
     # load data
     loaded_data = data_obj.load()
 
+<<<<<<< HEAD
     # Example: train and evaluate MLP
     print('----- BEGIN TRAINING -----')
     X_train = np.array(loaded_data['train']['X'], dtype=np.float32)
@@ -156,3 +164,75 @@ if 1:
     print(f"Plot saved to {plot_save_path}")
     plt.show()
     loaded_data = data_obj.load()
+=======
+    # autotune
+    print('----- BEGIN -----')
+    tune_result = tune_mlp(loaded_data)
+    print('----- END -----')
+    # ------------------------------------------------------
+
+    # plotting
+    if tune_result is not None and 'best_history' in tune_result and tune_result['best_history'] is not None:
+        loss_history = tune_result['best_history']['loss_history']
+        acc_history = tune_result['best_history']['acc_history']
+
+        plot_folder = PROJECT_ROOT / "result" / "stage_2_result"
+        plot_folder.mkdir(parents=True, exist_ok=True)
+
+        step = 5
+
+        sampled_loss_epochs = list(range(1, len(loss_history) + 1, step))
+        sampled_loss_values = loss_history[::step]
+        if sampled_loss_epochs[-1] != len(loss_history):
+            sampled_loss_epochs.append(len(loss_history))
+            sampled_loss_values.append(loss_history[-1])
+
+        sampled_acc_epochs = list(range(1, len(acc_history) + 1, step))
+        sampled_acc_values = acc_history[::step]
+        if sampled_acc_epochs[-1] != len(acc_history):
+            sampled_acc_epochs.append(len(acc_history))
+            sampled_acc_values.append(acc_history[-1])
+
+        # create figure with two subplots
+        plt.figure(figsize=(12, 5))
+
+        # plot the loss curve
+        plt.subplot(1, 2, 1)
+        plt.plot(sampled_loss_epochs, sampled_loss_values)
+        plt.xlabel('Epoch')
+        plt.ylabel('Training Loss')
+        plt.title('Loss Curve (Sampled Every 5 Epochs)')
+        plt.grid(True)
+
+        # mark the final loss point
+        last_epoch_loss = len(loss_history)
+        last_loss = loss_history[-1]
+        plt.scatter(last_epoch_loss, last_loss)
+        plt.text(last_epoch_loss, last_loss, f'{last_loss:.4f}', fontsize=9, ha='left', va='bottom')
+
+        # plot the accuracy curve
+        plt.subplot(1, 2, 2)
+        plt.plot(sampled_acc_epochs, sampled_acc_values)
+        plt.xlabel('Epoch')
+        plt.ylabel('Training Accuracy')
+        plt.title('Accuracy Curve (Sampled Every 5 Epochs)')
+        plt.grid(True)
+
+        # mark the final accuracy point
+        last_epoch_acc = len(acc_history)
+        last_acc = acc_history[-1]
+        plt.scatter(last_epoch_acc, last_acc)
+        plt.text(last_epoch_acc, last_acc, f'{last_acc:.4f}', fontsize=9, ha='left', va='bottom')
+
+        # overall title
+        plt.suptitle('MLP Convergence Curves during Training', fontsize=14)
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+        # save and display the figure
+        plt.savefig(plot_folder / 'mlp_curve.png')
+        plt.show()
+
+        print('Plots saved to:', plot_folder)
+    else:
+        print('No training history returned from tune_mlp()')
+>>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
