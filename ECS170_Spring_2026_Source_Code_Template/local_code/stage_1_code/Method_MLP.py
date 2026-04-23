@@ -133,9 +133,9 @@ class Method_MLP(method, nn.Module):
         epoch_counts = [100, 300, 500] # epochs
 
         # for plotting test
-        #hidden_sizes = [256]
-        #learning_rates = [1e-3]
-        #epoch_counts = [50]
+        # hidden_sizes = [256]
+        # learning_rates = [1e-3]
+        # epoch_counts = [50]
 
         best_accuracy = 0
         best_config = None
