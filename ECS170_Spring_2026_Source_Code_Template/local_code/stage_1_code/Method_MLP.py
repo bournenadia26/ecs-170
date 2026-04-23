@@ -201,9 +201,9 @@ class Method_MLP(method, nn.Module):
 >>>>>>> 6848cdd (tune_mlp() import error resolved)
 =======
         # for plotting test
-        #hidden_sizes = [256]
-        #learning_rates = [1e-3]
-        #epoch_counts = [50]
+        # hidden_sizes = [256]
+        # learning_rates = [1e-3]
+        # epoch_counts = [50]
 
 >>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
         best_accuracy = 0

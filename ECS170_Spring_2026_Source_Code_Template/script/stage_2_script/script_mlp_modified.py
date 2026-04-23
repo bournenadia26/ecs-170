@@ -193,6 +193,9 @@ if 1:
             sampled_acc_epochs.append(len(acc_history))
             sampled_acc_values.append(acc_history[-1])
 
+        best_config = tune_result['best_config']
+        best_accuracy = tune_result['best_accuracy']
+
         # create figure with two subplots
         plt.figure(figsize=(12, 5))
 
@@ -225,8 +228,17 @@ if 1:
         plt.text(last_epoch_acc, last_acc, f'{last_acc:.4f}', fontsize=9, ha='left', va='bottom')
 
         # overall title
-        plt.suptitle('MLP Convergence Curves during Training', fontsize=14)
-        plt.tight_layout(rect=[0, 0, 1, 0.95])
+        plt.suptitle('MLP Convergence Curves', fontsize=14)
+
+        # add the best config and test accuracy into the figure
+        config_text = (
+            f"Best Config: hidden_size={best_config['hidden_size']}, "
+            f"lr={best_config['lr']}, epochs={best_config['epochs']}    "
+            f"Test Accuracy={best_accuracy:.4f}"
+        )
+        plt.figtext(0.5, 0.90, config_text, ha='center', fontsize=10)
+
+        plt.tight_layout(rect=[0, 0, 1, 0.88])
 
         # save and display the figure
         plt.savefig(plot_folder / 'mlp_curve.png')
