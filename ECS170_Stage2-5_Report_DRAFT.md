@@ -54,16 +54,29 @@ This project implements and evaluates machine learning models for multiclass cla
 - Final predictions for the test set are saved and can be read using the provided script.
 - Total predictions: 10,000 (matching test set size).
 
----
+### 3.3 Ablation Study Results
+
+To assess the robustness and importance of various architectural choices, several ablation experiments were performed on the MLP model for stage_2. Each ablation modifies a single aspect of the baseline model, and the resulting test set metrics are reported below:
+
+| Ablation                | Precision | Recall | F1 Score |
+|-------------------------|-----------|--------|----------|
+| Hidden size = 128       | 0.9783    | 0.9783 | 0.9783   |
+| No Dropout              | 0.9783    | 0.9783 | 0.9783   |
+| Activation = Tanh       | 0.9783    | 0.9783 | 0.9783   |
+
+All ablations produced nearly identical results to the baseline, indicating that the model's performance is robust to these changes for this dataset and configuration.
+
 
 ## 4. Discussion
+
+- **Ablation Study Insights:**
+	- Reducing hidden size, removing dropout, or switching activation to Tanh did not significantly impact test precision, recall, or F1 score. This suggests the MLP is not highly sensitive to these hyperparameters for this task, or that the dataset is sufficiently simple for the model to generalize well under a range of configurations.
+	- The identical metrics across ablations may also indicate that the model is not under- or over-parameterized for this dataset.
 
 - **Overfitting:** Minimal, as shown by close training/test curves. Dropout and careful tuning helped prevent overfitting.
 - **Model Tuning:** Hyperparameters (hidden units, dropout, learning rate) were chosen to maximize test accuracy while avoiding overfitting.
 - **Reproducibility:** All scripts are modular and reproducible; random seeds are set.
 - **Limitations:** Large data files (train.csv, test.csv) are not included in the GitHub repo due to size constraints. Users must provide these files separately.
-
----
 
 ## 5. Conclusion
 
