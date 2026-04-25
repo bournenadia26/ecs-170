@@ -48,10 +48,13 @@ class Method_MLP(method, nn.Module):
         self.activation_func_1 = nn.ReLU()
         self.fc_layer_2 = nn.Linear(8, 2)
         self.activation_func_2 = nn.Softmax(dim=1)
+<<<<<<< HEAD
 
         # loss and accuracy lists for plotting
         self.loss_history = []
         self.acc_history = []
+=======
+>>>>>>> 74723fc (Baseline commit before ablation studies (original MLP architecture, results, and scripts))
 
         # loss and accuracy lists for plotting
         self.loss_history = []
@@ -62,6 +65,7 @@ class Method_MLP(method, nn.Module):
     def _build_model(self, hidden_size=256, dropout_rate=0.0):
         self.fc_layer_1 = nn.Linear(784, hidden_size)
         self.activation_func_1 = nn.ReLU()
+<<<<<<< HEAD
         self.dropout_1 = nn.Dropout(dropout_rate)
 
         self.fc_layer_2 = nn.Linear(hidden_size, hidden_size // 2)
@@ -237,6 +241,10 @@ class Method_MLP(method, nn.Module):
     """Method to auto-tune hyperparameters. Tries every combination of listed hyperparams and prints the results."""
 
     @staticmethod
+=======
+        # This file is intentionally left as a stub after extracting both ablation and baseline versions.
+        # Please use Method_MLP_ablation.py or Method_MLP_baseline.py for your experiments.
+>>>>>>> 74723fc (Baseline commit before ablation studies (original MLP architecture, results, and scripts))
     def tune_mlp(data):
         # Feel free to modify and see what works better!!
         hidden_sizes = [512]  # neurons per layer

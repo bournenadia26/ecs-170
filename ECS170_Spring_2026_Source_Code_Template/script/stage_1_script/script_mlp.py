@@ -17,20 +17,28 @@ if 1:
     # ---- objection initialization setction ---------------
     data_obj = Dataset_Loader('toy', '')
 <<<<<<< HEAD
+<<<<<<< HEAD
     data_obj.dataset_source_folder_path = 'data/stage_1_data/'
 =======
     data_obj.dataset_source_folder_path = '../../data/stage_1_data/'
 >>>>>>> 5788125 (initial commit)
+=======
+    data_obj.dataset_source_folder_path = 'data/stage_1_data/'
+>>>>>>> 74723fc (Baseline commit before ablation studies (original MLP architecture, results, and scripts))
     data_obj.dataset_source_file_name = 'toy_data_file.txt'
 
     method_obj = Method_MLP('multi-layer perceptron', '')
 
     result_obj = Result_Saver('saver', '')
 <<<<<<< HEAD
+<<<<<<< HEAD
     result_obj.result_destination_folder_path = 'result/stage_1_result/MLP_'
 =======
     result_obj.result_destination_folder_path = '../../result/stage_1_result/MLP_'
 >>>>>>> 5788125 (initial commit)
+=======
+    result_obj.result_destination_folder_path = 'result/stage_1_result/MLP_'
+>>>>>>> 74723fc (Baseline commit before ablation studies (original MLP architecture, results, and scripts))
     result_obj.result_destination_file_name = 'prediction_result'
 
     setting_obj = Setting_KFold_CV('k fold cross validation', '')

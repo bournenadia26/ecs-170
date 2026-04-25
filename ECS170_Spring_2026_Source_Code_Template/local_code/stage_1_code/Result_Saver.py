@@ -16,7 +16,12 @@ class Result_Saver(result):
     result_destination_file_name = None
     
     def save(self):
+        import os
         print('saving results...')
-        f = open(self.result_destination_folder_path + self.result_destination_file_name + '_' + str(self.fold_count), 'wb')
-        pickle.dump(self.data, f)
-        f.close()
+        # Use os.path.join for robust path construction
+        filename = self.result_destination_file_name + '_' + str(self.fold_count)
+        full_path = os.path.join(self.result_destination_folder_path, filename)
+        print(f"[DEBUG] Saving result to: {full_path}")
+        os.makedirs(self.result_destination_folder_path, exist_ok=True)
+        with open(full_path, 'wb') as f:
+            pickle.dump(self.data, f)
