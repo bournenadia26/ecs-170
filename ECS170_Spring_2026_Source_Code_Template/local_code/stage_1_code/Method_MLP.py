@@ -56,13 +56,19 @@ class Method_MLP(method, nn.Module):
         # loss and accuracy lists for plotting
         self.loss_history = []
         self.acc_history = []
+        self.test_loss_history = []
+        self.test_acc_history = []
 
-    def _build_model(self, hidden_size=256): # 2 hidden layers. feel free to tweak to more. compresses to 256 neurons.
-        self.fc_layer_1 = nn.Linear(784, hidden_size) #<- stage 2 number of features
+    def _build_model(self, hidden_size=256, dropout_rate=0.0):
+        self.fc_layer_1 = nn.Linear(784, hidden_size)
         self.activation_func_1 = nn.ReLU()
-        self.fc_layer_2 = nn.Linear(hidden_size, hidden_size)
+        self.dropout_1 = nn.Dropout(dropout_rate)
+
+        self.fc_layer_2 = nn.Linear(hidden_size, hidden_size // 2)
         self.activation_func_2 = nn.ReLU()
-        self.fc_layer_3 = nn.Linear(hidden_size, 10)
+        self.dropout_2 = nn.Dropout(dropout_rate)
+
+        self.fc_layer_3 = nn.Linear(hidden_size // 2, 10)
 
 =======
         self.fc_layer_1 = nn.Linear(4, 4)
@@ -86,7 +92,9 @@ class Method_MLP(method, nn.Module):
         '''Forward propagation'''
         # hidden layer embeddings
         h1 = self.activation_func_1(self.fc_layer_1(x))
+        h1 = self.dropout_1(h1)
         h2 = self.activation_func_2(self.fc_layer_2(h1))
+        h2 = self.dropout_2(h2)
         # outout layer result
         # self.fc_layer_2(h) will be a nx2 tensor
         # n (denotes the input instance number): 0th dimension; 2 (denotes the class number): 1st dimension
@@ -112,6 +120,8 @@ class Method_MLP(method, nn.Module):
 =======
         self.loss_history = []  # for storage so we can see
         self.acc_history = []
+        self.test_loss_history = []
+        self.test_acc_history = []
 
         # convert X into torch.tensor so pytorch algorithm can operate on it
         X_tensor = torch.FloatTensor(np.array(X))
@@ -119,8 +129,14 @@ class Method_MLP(method, nn.Module):
         y_true = torch.LongTensor(np.array(y))
 >>>>>>> b5aa34e (adjusting train, moving tensor out of loop to increase training speed)
 
+<<<<<<< HEAD
 =======
 >>>>>>> 5788125 (initial commit)
+=======
+        X_test_tensor = torch.FloatTensor(np.array(self.data['test']['X']))
+        y_test_true = torch.LongTensor(np.array(self.data['test']['y']))
+
+>>>>>>> 5ed2fde (combining the effort from different teammates)
         # it will be an iterative gradient updating process
         # we don't do mini-batch, we use the whole input as one batch
         # you can try to split X and y into smaller-sized batches by yourself
@@ -150,6 +166,7 @@ class Method_MLP(method, nn.Module):
             self.acc_history.append(current_acc)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (epoch + 1) % 10 == 0: # adjusted because epoch number starts at 0
 <<<<<<< HEAD
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
@@ -169,14 +186,32 @@ class Method_MLP(method, nn.Module):
 >>>>>>> 0ec6ea8 (added plotting for loss and accuracy curves for the best config model after tuning)
     
 =======
+=======
+            with torch.no_grad():
+                test_pred = self.forward(X_test_tensor)
+                test_loss = loss_function(test_pred, y_test_true)
+                test_labels = test_pred.max(1)[1]
+                test_acc = np.mean((test_labels == y_test_true).numpy())
+
+            self.test_loss_history.append(test_loss.item())
+            self.test_acc_history.append(test_acc)
+
+>>>>>>> 5ed2fde (combining the effort from different teammates)
             if (epoch + 1) % 10 == 0:  # adjusted because epoch number starts at 0
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                print('Epoch:', epoch + 1, 'Accuracy:', current_acc, 'Loss:', train_loss.item())
+                print(
+                    'Epoch:', epoch + 1,
+                    'Train Accuracy:', current_acc,
+                    'Train Loss:', train_loss.item(),
+                    'Test Accuracy:', test_acc,
+                    'Test Loss:', test_loss.item()
+                )
 
 >>>>>>> b5aa34e (adjusting train, moving tensor out of loop to increase training speed)
     def test(self, X):
         # do the testing, and result the result
-        y_pred = self.forward(torch.FloatTensor(np.array(X)))
+        with torch.no_grad():
+            y_pred = self.forward(torch.FloatTensor(np.array(X)))
         # convert the probability distributions to the corresponding labels
         # instances will get the labels corresponding to the largest probability
         return y_pred.max(1)[1]
@@ -194,16 +229,20 @@ class Method_MLP(method, nn.Module):
         return {'pred_y': pred_y,
                 'true_y': self.data['test']['y'],
                 'loss_history': self.loss_history,
-                'acc_history': self.acc_history
-        }
+                'acc_history': self.acc_history,
+                'test_loss_history': self.test_loss_history,
+                'test_acc_history': self.test_acc_history
+                }
 
     """Method to auto-tune hyperparameters. Tries every combination of listed hyperparams and prints the results."""
+
     @staticmethod
     def tune_mlp(data):
         # Feel free to modify and see what works better!!
-        hidden_sizes = [512] # neurons per layer
-        learning_rates = [1e-3] # learning rates
-        epoch_counts = [300] # epochs
+        hidden_sizes = [512]  # neurons per layer
+        learning_rates = [1e-3]  # learning rates
+        epoch_counts = [300]  # epochs
+        dropout_rates = [0.0, 0.3]
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -211,6 +250,7 @@ class Method_MLP(method, nn.Module):
         # hidden_sizes = [256]
         # learning_rates = [1e-3]
         # epoch_counts = [50]
+        # dropout_rates = [0.0]
 
 =======
 >>>>>>> 6848cdd (tune_mlp() import error resolved)
@@ -225,38 +265,48 @@ class Method_MLP(method, nn.Module):
         best_config = None
         best_history = None
 
-        for hidden_size in hidden_sizes: # for every combination of every hyperparam:
+        for hidden_size in hidden_sizes:  # for every combination of every hyperparam:
             for lr in learning_rates:
                 for epochs in epoch_counts:
-                    print(f'\n--- Trying hidden={hidden_size}, lr={lr}, epochs={epochs} ---')
+                    for dropout_rate in dropout_rates:
+                        print(
+                            f'\n--- Trying hidden={hidden_size}, lr={lr}, epochs={epochs}, dropout={dropout_rate} ---')
 
-                    model = Method_MLP('mlp', '')
-                    model._build_model(hidden_size=hidden_size)
-                    model.learning_rate = lr
-                    model.max_epoch = epochs
-                    model.data = data
+                        model = Method_MLP('mlp', '')
+                        model._build_model(hidden_size=hidden_size, dropout_rate=dropout_rate)
+                        model.learning_rate = lr
+                        model.max_epoch = epochs
+                        model.data = data
 
-                    result = model.run()
+                        result = model.run()
 
-                    pred_y = result['pred_y'].numpy()
-                    true_y = np.array(result['true_y'])
+                        pred_y = result['pred_y'].numpy()
+                        true_y = np.array(result['true_y'])
 
-                    # metrics
-                    accuracy = np.mean(pred_y == true_y)
-                    precision = precision_score(true_y, pred_y, average='weighted')
-                    recall = recall_score(true_y, pred_y, average='weighted')
-                    f1 = f1_score(true_y, pred_y, average='weighted')
+                        # metrics
+                        accuracy = np.mean(pred_y == true_y)
+                        precision = precision_score(true_y, pred_y, average='weighted')
+                        recall = recall_score(true_y, pred_y, average='weighted')
+                        f1 = f1_score(true_y, pred_y, average='weighted')
 
-                    print("----- FINAL STATS -----")
-                    print(f'Accuracy: {accuracy:.4f} | Precision: {precision:.4f} | Recall: {recall:.4f} | F1: {f1:.4f}')
+                        print("----- FINAL STATS -----")
+                        print(
+                            f'Accuracy: {accuracy:.4f} | Precision: {precision:.4f} | Recall: {recall:.4f} | F1: {f1:.4f}')
 
-                    if accuracy > best_accuracy: # best model is judged purely by accuracy
-                        best_accuracy = accuracy
-                        best_config = {'hidden_size': hidden_size, 'lr': lr, 'epochs': epochs}
-                        best_history = {
-                            'loss_history': result['loss_history'],
-                            'acc_history': result['acc_history']
-                        }
+                        if accuracy > best_accuracy:  # best model is judged purely by accuracy
+                            best_accuracy = accuracy
+                            best_config = {
+                                'hidden_size': hidden_size,
+                                'lr': lr,
+                                'epochs': epochs,
+                                'dropout': dropout_rate
+                            }
+                            best_history = {
+                                'loss_history': result['loss_history'],
+                                'acc_history': result['acc_history'],
+                                'test_loss_history': result['test_loss_history'],
+                                'test_acc_history': result['test_acc_history']
+                            }
 
 <<<<<<< HEAD
 <<<<<<< HEAD

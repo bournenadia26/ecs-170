@@ -17,8 +17,9 @@ from local_code.stage_1_code.Result_Saver import Result_Saver
 #from local_code.stage_1_code.Setting_KFold_CV import Setting_KFold_CV
 =======
 from local_code.stage_1_code.Dataset_Loader import Dataset_Loader
-from local_code.stage_1_code.Method_MLP import Method_MLP, tune_mlp
+from local_code.stage_2_code.Method_MLP import Method_MLP, tune_mlp
 from local_code.stage_1_code.Result_Saver import Result_Saver
+<<<<<<< HEAD
 from local_code.stage_1_code.Setting_KFold_CV import Setting_KFold_CV
 >>>>>>> 24bef01 (copied script_mlp into stage_2, tweaked for given dataset, called autotuning method)
 from local_code.stage_1_code.Setting_Train_Test_Split import Setting_Train_Test_Split
@@ -41,6 +42,9 @@ from local_code.stage_1_code.Method_MLP import Method_MLP, tune_mlp
 from local_code.stage_1_code.Result_Saver import Result_Saver
 >>>>>>> 50f8de9 (pathname error fix)
 #from local_code.stage_1_code.Setting_KFold_CV import Setting_KFold_CV
+=======
+#from local_code.stage_2_code.Setting_KFold_CV import Setting_KFold_CV
+>>>>>>> 5ed2fde (combining the effort from different teammates)
 from local_code.stage_1_code.Setting_Train_Test_Split import Setting_Train_Test_Split
 from local_code.stage_1_code.Evaluate_Accuracy import Evaluate_Accuracy
 import numpy as np
@@ -175,23 +179,26 @@ if 1:
     if tune_result is not None and 'best_history' in tune_result and tune_result['best_history'] is not None:
         loss_history = tune_result['best_history']['loss_history']
         acc_history = tune_result['best_history']['acc_history']
+        test_loss_history = tune_result['best_history']['test_loss_history']
+        test_acc_history = tune_result['best_history']['test_acc_history']
 
         plot_folder = PROJECT_ROOT / "result" / "stage_2_result"
         plot_folder.mkdir(parents=True, exist_ok=True)
 
         step = 5
 
-        sampled_loss_epochs = list(range(1, len(loss_history) + 1, step))
-        sampled_loss_values = loss_history[::step]
-        if sampled_loss_epochs[-1] != len(loss_history):
-            sampled_loss_epochs.append(len(loss_history))
-            sampled_loss_values.append(loss_history[-1])
+        sampled_epochs = list(range(1, len(loss_history) + 1, step))
+        sampled_train_loss = loss_history[::step]
+        sampled_test_loss = test_loss_history[::step]
+        sampled_train_acc = acc_history[::step]
+        sampled_test_acc = test_acc_history[::step]
 
-        sampled_acc_epochs = list(range(1, len(acc_history) + 1, step))
-        sampled_acc_values = acc_history[::step]
-        if sampled_acc_epochs[-1] != len(acc_history):
-            sampled_acc_epochs.append(len(acc_history))
-            sampled_acc_values.append(acc_history[-1])
+        if sampled_epochs[-1] != len(loss_history):
+            sampled_epochs.append(len(loss_history))
+            sampled_train_loss.append(loss_history[-1])
+            sampled_test_loss.append(test_loss_history[-1])
+            sampled_train_acc.append(acc_history[-1])
+            sampled_test_acc.append(test_acc_history[-1])
 
         best_config = tune_result['best_config']
         best_accuracy = tune_result['best_accuracy']
@@ -201,31 +208,40 @@ if 1:
 
         # plot the loss curve
         plt.subplot(1, 2, 1)
-        plt.plot(sampled_loss_epochs, sampled_loss_values)
+        plt.plot(sampled_epochs, sampled_train_loss, label='Train Loss')
+        plt.plot(sampled_epochs, sampled_test_loss, label='Test Loss')
         plt.xlabel('Epoch')
-        plt.ylabel('Training Loss')
+        plt.ylabel('Loss')
         plt.title('Loss Curve (Sampled Every 5 Epochs)')
         plt.grid(True)
+        plt.legend()
 
         # mark the final loss point
-        last_epoch_loss = len(loss_history)
-        last_loss = loss_history[-1]
-        plt.scatter(last_epoch_loss, last_loss)
-        plt.text(last_epoch_loss, last_loss, f'{last_loss:.4f}', fontsize=9, ha='left', va='bottom')
+        last_epoch = len(loss_history)
+        last_train_loss = loss_history[-1]
+        last_test_loss = test_loss_history[-1]
+        plt.scatter(last_epoch, last_train_loss)
+        plt.scatter(last_epoch, last_test_loss)
+        plt.text(last_epoch, last_train_loss, f'{last_train_loss:.4f}', fontsize=9, ha='left', va='bottom')
+        plt.text(last_epoch, last_test_loss, f'{last_test_loss:.4f}', fontsize=9, ha='left', va='top')
 
         # plot the accuracy curve
         plt.subplot(1, 2, 2)
-        plt.plot(sampled_acc_epochs, sampled_acc_values)
+        plt.plot(sampled_epochs, sampled_train_acc, label='Train Accuracy')
+        plt.plot(sampled_epochs, sampled_test_acc, label='Test Accuracy')
         plt.xlabel('Epoch')
-        plt.ylabel('Training Accuracy')
+        plt.ylabel('Accuracy')
         plt.title('Accuracy Curve (Sampled Every 5 Epochs)')
         plt.grid(True)
+        plt.legend()
 
         # mark the final accuracy point
-        last_epoch_acc = len(acc_history)
-        last_acc = acc_history[-1]
-        plt.scatter(last_epoch_acc, last_acc)
-        plt.text(last_epoch_acc, last_acc, f'{last_acc:.4f}', fontsize=9, ha='left', va='bottom')
+        last_train_acc = acc_history[-1]
+        last_test_acc = test_acc_history[-1]
+        plt.scatter(last_epoch, last_train_acc)
+        plt.scatter(last_epoch, last_test_acc)
+        plt.text(last_epoch, last_train_acc, f'{last_train_acc:.4f}', fontsize=9, ha='left', va='bottom')
+        plt.text(last_epoch, last_test_acc, f'{last_test_acc:.4f}', fontsize=9, ha='left', va='top')
 
         # overall title
         plt.suptitle('MLP Convergence Curves', fontsize=14)
@@ -233,15 +249,16 @@ if 1:
         # add the best config and test accuracy into the figure
         config_text = (
             f"Best Config: hidden_size={best_config['hidden_size']}, "
-            f"lr={best_config['lr']}, epochs={best_config['epochs']}    "
-            f"Test Accuracy={best_accuracy:.4f}"
+            f"lr={best_config['lr']}, epochs={best_config['epochs']}, "
+            f"dropout={best_config.get('dropout', 0.0)}    "
+            f"Final Test Accuracy={best_accuracy:.4f}"
         )
         plt.figtext(0.5, 0.90, config_text, ha='center', fontsize=10)
 
         plt.tight_layout(rect=[0, 0, 1, 0.88])
 
         # save and display the figure
-        plt.savefig(plot_folder / 'mlp_curve.png')
+        plt.savefig(plot_folder / 'MLP_training_progress.png')
         plt.show()
 
         print('Plots saved to:', plot_folder)
