@@ -29,7 +29,7 @@ class Dataset_Loader(dataset):
         f = open(self.dataset_source_folder_path + self.dataset_source_file_name, 'r')
         for line in f:
             line = line.strip('\n')
-            elements = [int(i) for i in line.split(' ')] # <-- ORIGINAL
+            elements = [int(i) for i in line.strip().split()]
             X.append(elements[:-1])
             y.append(elements[-1])
         f.close()
@@ -38,25 +38,39 @@ class Dataset_Loader(dataset):
 
         # prof already gave us seperated train.csv and test.csv. Original code literally will not work??
         # new version to account for pre-seperated files
-        X_train, y_train = [], []
-        f = open(self.dataset_source_folder_path + self.dataset_source_file_name_train, 'r')
-        for line in f:
-            line = line.strip('\n')
-            elements = [int(i) for i in line.strip().split(',')] # comma seperated instead of space bc he gave us csv's
-            y_train.append(elements[0]) # label first as specified in README for stage2
-            X_train.append(elements[1:])
-        f.close()
+        # Stage 2: If both train and test file names are set, load as train/test split
+        if self.dataset_source_file_name_train and self.dataset_source_file_name_test:
+            X_train, y_train = [], []
+            f = open(self.dataset_source_folder_path + self.dataset_source_file_name_train, 'r')
+            for line in f:
+                line = line.strip('\n')
+                elements = [int(i) for i in line.strip().split()]
+                y_train.append(elements[0])
+                X_train.append(elements[1:])
+            f.close()
 
-        X_test, y_test = [], []
-        f = open(self.dataset_source_folder_path + self.dataset_source_file_name_test, 'r')
-        for line in f:
-            line = line.strip('\n')
-            elements = [int(i) for i in line.strip().split(',')]
-            y_test.append(elements[0])
-            X_test.append(elements[1:])
-        f.close()
+            X_test, y_test = [], []
+            f = open(self.dataset_source_folder_path + self.dataset_source_file_name_test, 'r')
+            for line in f:
+                line = line.strip('\n')
+                elements = [int(i) for i in line.strip().split()]
+                y_test.append(elements[0])
+                X_test.append(elements[1:])
+            f.close()
 
-        return {
-            'train': {'X': X_train, 'y': y_train},
-            'test': {'X': X_test, 'y': y_test}
-        }
+            return {
+                'train': {'X': X_train, 'y': y_train},
+                'test': {'X': X_test, 'y': y_test}
+            }
+        # Stage 1: Otherwise, load as single file with X/y
+        else:
+            X = []
+            y = []
+            f = open(self.dataset_source_folder_path + self.dataset_source_file_name, 'r')
+            for line in f:
+                line = line.strip('\n')
+                elements = [int(i) for i in line.strip().split()]
+                X.append(elements[:-1])
+                y.append(elements[-1])
+            f.close()
+            return {'X': X, 'y': y}
