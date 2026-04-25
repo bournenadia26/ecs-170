@@ -166,7 +166,7 @@ class Method_MLP(method, nn.Module):
         # Feel free to modify and see what works better!!
         hidden_sizes = [512]  # neurons per layer
         learning_rates = [1e-3]  # learning rates
-        epoch_counts = [300]  # epochs
+        epoch_counts = [500]  # epochs
         dropout_rates = [0.0, 0.3]
 
         # for plotting test
