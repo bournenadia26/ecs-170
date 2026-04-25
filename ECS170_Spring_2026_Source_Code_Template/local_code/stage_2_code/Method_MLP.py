@@ -12,6 +12,7 @@ from torch import nn
 import numpy as np
 from sklearn.metrics import precision_score, recall_score, f1_score
 
+
 class Method_MLP(method, nn.Module):
     data = None
     # it defines the max rounds to train the model
@@ -26,12 +27,12 @@ class Method_MLP(method, nn.Module):
         method.__init__(self, mName, mDescription)
         nn.Module.__init__(self)
         # check here for nn.Linear doc: https://pytorch.org/docs/stable/generated/torch.nn.Linear.html
-        #self.fc_layer_1 = nn.Linear(4, 4)
+        # self.fc_layer_1 = nn.Linear(4, 4)
         # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
-        #self.activation_func_1 = nn.ReLU()
-        #self.fc_layer_2 = nn.Linear(4, 2)
+        # self.activation_func_1 = nn.ReLU()
+        # self.fc_layer_2 = nn.Linear(4, 2)
         # check here for nn.Softmax doc: https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html
-        #self.activation_func_2 = nn.Softmax(dim=1)
+        # self.activation_func_2 = nn.Softmax(dim=1)
 
         """Fundamental restructure bc we're not working with tiny toy dataset anymore"""
         self._build_model(hidden_size=256)
@@ -144,7 +145,7 @@ class Method_MLP(method, nn.Module):
         # convert the probability distributions to the corresponding labels
         # instances will get the labels corresponding to the largest probability
         return y_pred.max(1)[1]
-    
+
     def run(self):
         print('method running...')
         print('--start training...')
