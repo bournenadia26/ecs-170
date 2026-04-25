@@ -73,16 +73,20 @@ class Method_MLP(method, nn.Module):
         # for training accuracy investigation purpose
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
 
-        self.loss_history = [] # for storage so we can see
+        self.loss_history = []  # for storage so we can see
+        self.acc_history = []
+
+        # convert X into torch.tensor so pytorch algorithm can operate on it
+        X_tensor = torch.FloatTensor(np.array(X))
+        # convert y to torch.tensor as well
+        y_true = torch.LongTensor(np.array(y))
 
         # it will be an iterative gradient updating process
         # we don't do mini-batch, we use the whole input as one batch
         # you can try to split X and y into smaller-sized batches by yourself
-        for epoch in range(self.max_epoch): # you can do an early stop if self.max_epoch is too much...
-            # get the output, we need to covert X into torch.tensor so pytorch algorithm can operate on it
-            y_pred = self.forward(torch.FloatTensor(np.array(X)))
-            # convert y to torch.tensor as well
-            y_true = torch.LongTensor(np.array(y))
+        for epoch in range(self.max_epoch):  # you can do an early stop if self.max_epoch is too much...
+            # get the output
+            y_pred = self.forward(X_tensor)
             # calculate the training loss
             train_loss = loss_function(y_pred, y_true)
 
@@ -101,10 +105,10 @@ class Method_MLP(method, nn.Module):
             self.loss_history.append(train_loss.item())
             self.acc_history.append(current_acc)
 
-            if (epoch + 1) % 10 == 0: # adjusted because epoch number starts at 0
+            if (epoch + 1) % 10 == 0:  # adjusted because epoch number starts at 0
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                print('Epoch:', epoch + 1, 'Accuracy:', current_acc, 'Loss:', train_loss.item()) # a little uninformative for epochs=100
-    
+                print('Epoch:', epoch + 1, 'Accuracy:', current_acc, 'Loss:', train_loss.item())
+
     def test(self, X):
         # do the testing, and result the result
         y_pred = self.forward(torch.FloatTensor(np.array(X)))
@@ -128,9 +132,9 @@ class Method_MLP(method, nn.Module):
     @staticmethod
     def tune_mlp(data):
         # Feel free to modify and see what works better!!
-        hidden_sizes = [128, 256, 512] # neurons per layer
-        learning_rates = [1e-3, 1e-4] # learning rates
-        epoch_counts = [100, 300, 500] # epochs
+        hidden_sizes = [512] # neurons per layer
+        learning_rates = [1e-3] # learning rates
+        epoch_counts = [300] # epochs
 
         # for plotting test
         # hidden_sizes = [256]
