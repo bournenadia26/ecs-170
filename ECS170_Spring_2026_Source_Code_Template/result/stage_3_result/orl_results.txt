@@ -1,0 +1,8 @@
+----- FINAL ORL RESULTS -----
+Best Config: {'num_filters': 32, 'fc_hidden_size': 256, 'lr': 0.001, 'epochs': 50, 'dropout': 0.0}
+Best Accuracy: 1.0
+Accuracy: 1.0
+Precision: 1.0
+Recall: 1.0
+F1: 1.0
+Test Loss: 0.01071040891110897

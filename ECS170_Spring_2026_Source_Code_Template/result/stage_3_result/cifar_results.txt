@@ -1,0 +1,8 @@
+----- FINAL CIFAR RESULTS -----
+Best Config: {'num_filters': 32, 'fc_hidden_size': 256, 'lr': 0.001, 'epochs': 50, 'dropout': 0.0}
+Best Accuracy: 0.6927
+Accuracy: 0.6927
+Precision: 0.6928167711302675
+Recall: 0.6927
+F1: 0.6918428208771947
+Test Loss: 3.1893314125061036

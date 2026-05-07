@@ -274,6 +274,7 @@ class Method_CNN(method, nn.Module):
         best_accuracy = 0
         best_config   = None
         best_history  = None
+        best_result = None
 
         for num_filters in num_filters_list:
             for fc_hidden_size in fc_hidden_sizes:
@@ -308,14 +309,25 @@ class Method_CNN(method, nn.Module):
                             recall    = recall_score(true_y, pred_y, average='weighted', zero_division=0)
                             f1        = f1_score(true_y, pred_y, average='weighted', zero_division=0)
 
-                            print("----- FINAL STATS -----")
                             print(
-                                f'Accuracy: {accuracy:.4f} | Precision: {precision:.4f} '
-                                f'| Recall: {recall:.4f} | F1: {f1:.4f}'
+                                f'Config Finished | '
+                                f'filters={num_filters}, '
+                                f'fc_hidden={fc_hidden_size}, '
+                                f'lr={lr}, '
+                                f'epochs={epochs}, '
+                                f'dropout={dropout_rate}'
+                            )
+
+                            print(
+                                f'Test Accuracy: {accuracy:.4f} | '
+                                f'Precision: {precision:.4f} | '
+                                f'Recall: {recall:.4f} | '
+                                f'F1: {f1:.4f}'
                             )
 
                             if accuracy > best_accuracy:
                                 best_accuracy = accuracy
+                                best_result = result
                                 best_config = {
                                     'num_filters': num_filters,
                                     'fc_hidden_size': fc_hidden_size,
@@ -334,7 +346,13 @@ class Method_CNN(method, nn.Module):
         return {
             'best_config': best_config,
             'best_accuracy': best_accuracy,
-            'best_history': best_history
+            'best_history': best_history,
+            'pred_y': best_result['pred_y'],
+            'true_y': best_result['true_y'],
+            'loss_history': best_result['loss_history'],
+            'acc_history': best_result['acc_history'],
+            'test_loss_history': best_result['test_loss_history'],
+            'test_acc_history': best_result['test_acc_history']
         }
 
 
