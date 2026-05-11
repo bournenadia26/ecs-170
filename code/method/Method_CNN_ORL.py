@@ -1,0 +1,113 @@
+'''
+CNN Model for ORL Face Dataset - ECS 170 Stage 3
+Input:  (N, 1, 112, 92) grayscale face images (R-channel only)
+Output: 40-class person classification (0-39)
+
+Architecture (default):
+  Conv1: 1->32, kernel=3, pad=1 -> BN -> ReLU -> MaxPool(2x2) => (32, 56, 46)
+  Conv2: 32->64, kernel=3, pad=1 -> BN -> ReLU -> MaxPool(2x2) => (64, 28, 23)
+  Conv3: 64->128, kernel=3, pad=1 -> BN -> ReLU -> MaxPool(2x2) => (128, 14, 11)
+  Dropout(0.25)
+  FC1:  128*14*11=19712 -> 512 -> ReLU
+  Dropout(0.5)
+  FC2:  512 -> 40
+'''
+
+import torch
+import torch.nn as nn
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from base.base_method import Method
+
+
+class Method_CNN_ORL(Method, nn.Module):
+    max_epoch = 30
+    learning_rate = 1e-3
+    weight_decay = 1e-4
+
+    def __init__(self, mName='CNN_ORL', mDescription='CNN for ORL face recognition',
+                 n_classes=40, dropout=0.25):
+        Method.__init__(self, mName=mName, mDescription=mDescription)
+        nn.Module.__init__(self)
+
+        self.conv_block = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),                          # -> (32, 56, 46)
+
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),                          # -> (64, 28, 23)
+
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, 2),                          # -> (128, 14, 11)
+
+            nn.Dropout2d(dropout),
+        )
+        # 128 * 14 * 11 = 19712
+        self.fc_block = nn.Sequential(
+            nn.Linear(128 * 14 * 11, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
+            nn.Linear(512, n_classes),
+        )
+
+    def forward(self, x):
+        x = self.conv_block(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc_block(x)
+        return x
+
+    def train_model(self, train_loader, device):
+        nn.Module.train(self)  # set training mode
+        optimizer = torch.optim.Adam(self.parameters(),
+                                     lr=self.learning_rate,
+                                     weight_decay=self.weight_decay)
+        criterion = nn.CrossEntropyLoss()
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+
+        loss_history = []
+        acc_history = []
+
+        for epoch in range(self.max_epoch):
+            total_loss = 0.0
+            correct = 0
+            total = 0
+            for imgs, labels in train_loader:
+                imgs, labels = imgs.to(device), labels.to(device)
+                optimizer.zero_grad()
+                outputs = self(imgs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                total_loss += loss.item() * imgs.size(0)
+                preds = outputs.argmax(dim=1)
+                correct += (preds == labels).sum().item()
+                total += imgs.size(0)
+
+            scheduler.step()
+            avg_loss = total_loss / total
+            avg_acc  = correct / total
+            loss_history.append(avg_loss)
+            acc_history.append(avg_acc)
+            print(f'  [ORL] Epoch {epoch+1:02d}/{self.max_epoch} | Loss: {avg_loss:.4f} | Train Acc: {avg_acc:.4f}')
+
+        return loss_history, acc_history
+
+    def test_model(self, test_loader, device):
+        nn.Module.eval(self)  # set eval mode
+        all_preds = []
+        all_labels = []
+        with torch.no_grad():
+            for imgs, labels in test_loader:
+                imgs = imgs.to(device)
+                outputs = self(imgs)
+                preds = outputs.argmax(dim=1).cpu().numpy()
+                all_preds.extend(preds.tolist())
+                all_labels.extend(labels.numpy().tolist())
+        return all_preds, all_labels

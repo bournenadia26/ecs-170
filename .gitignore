@@ -1,0 +1,15 @@
+# Python env
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Large local datasets / archives
+stage_3_data/
+stage_3_data.zip
+CIFAR_results.zip
+
+# Local editor/runtime artifacts
+.ipynb_checkpoints/
