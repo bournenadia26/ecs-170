@@ -50,7 +50,7 @@ class Method_CNN(method, nn.Module):
     # ---------------------------------------------------------------------------
     # Architecture builder
     # ---------------------------------------------------------------------------
-    def _build_model(self, num_filters=32, fc_hidden_size=256, dropout_rate=0.0):
+    def _build_model(self, num_filters=32, fc_hidden_size=256, dropout_rate=0.0, num_conv_layers=2):
         """
         Build the CNN layers.
 
@@ -86,9 +86,20 @@ class Method_CNN(method, nn.Module):
         self.activation_func_2 = nn.ReLU()
         self.pool_2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
+        # --- Optional Conv block 3 ---
+        self.use_third_conv = (num_conv_layers >= 3)
+        if self.use_third_conv:
+            self.conv_layer_3 = nn.Conv2d(num_filters * 2, num_filters * 4, kernel_size=3, stride=1, padding=1)
+            self.activation_func_conv_3 = nn.ReLU()
+            self.pool_3 = nn.MaxPool2d(kernel_size=2, stride=2)
+
         # --- Fully connected block ---
-        # spatial size after two pool layers: img_size // 4
-        conv_out_size = (self.img_size // 4) * (self.img_size // 4) * (num_filters * 2)
+        if self.use_third_conv:
+            spatial = self.img_size // 8
+            conv_out_size = spatial * spatial * (num_filters * 4)
+        else:
+            # spatial size after two pool layers: img_size // 4
+            conv_out_size = (self.img_size // 4) * (self.img_size // 4) * (num_filters * 2)
 
         self.fc_layer_1 = nn.Linear(conv_out_size, fc_hidden_size)
         self.activation_func_3 = nn.ReLU()
@@ -100,6 +111,7 @@ class Method_CNN(method, nn.Module):
         self._num_filters = num_filters
         self._fc_hidden_size = fc_hidden_size
         self._dropout_rate = dropout_rate
+        self._num_conv_layers = num_conv_layers
 
     # ---------------------------------------------------------------------------
     # Forward pass
@@ -115,6 +127,11 @@ class Method_CNN(method, nn.Module):
         # conv block 2
         h = self.activation_func_2(self.conv_layer_2(h))
         h = self.pool_2(h)
+
+        # conv block 3 (optional)
+        if self.use_third_conv:
+            h = self.activation_func_conv_3(self.conv_layer_3(h))
+            h = self.pool_3(h)
 
         # flatten: (N, filters*2, H', W') -> (N, filters*2 * H' * W')
         h = h.view(h.size(0), -1)
@@ -293,7 +310,8 @@ class Method_CNN(method, nn.Module):
                             model._build_model(
                                 num_filters=num_filters,
                                 fc_hidden_size=fc_hidden_size,
-                                dropout_rate=dropout_rate
+                                dropout_rate=dropout_rate,
+                                num_conv_layers=2
                             )
                             model.learning_rate = lr
                             model.max_epoch = epochs
@@ -333,7 +351,8 @@ class Method_CNN(method, nn.Module):
                                     'fc_hidden_size': fc_hidden_size,
                                     'lr': lr,
                                     'epochs': epochs,
-                                    'dropout': dropout_rate
+                                    'dropout': dropout_rate,
+                                    'num_conv_layers': 2
                                 }
                                 best_history = {
                                     'loss_history': result['loss_history'],

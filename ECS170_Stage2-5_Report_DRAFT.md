@@ -66,6 +66,20 @@ To assess the robustness and importance of various architectural choices, severa
 
 All ablations produced nearly identical results to the baseline, indicating that the model's performance is robust to these changes for this dataset and configuration.
 
+### 3.4 CNN Structure Ablation Study (Stage 3)
+
+To examine how CNN architecture choices affect performance, six configurations were trained on a 10,000-sample subset of MNIST for 30 epochs. Each configuration changes one structural element relative to the baseline (32 filters, FC=256, no dropout, 2 conv layers).
+
+| Config        | Filters | FC Hidden | Dropout | Conv Layers | Accuracy | Precision | Recall | F1     | Test Loss |
+|---------------|---------|-----------|---------|-------------|----------|-----------|--------|--------|-----------|
+| Baseline      | 32      | 256       | 0.0     | 2           | 0.9857   | 0.9857    | 0.9857 | 0.9857 | 0.0702    |
+| Fewer Filters | 16      | 256       | 0.0     | 2           | 0.9845   | 0.9845    | 0.9845 | 0.9845 | 0.0792    |
+| More Filters  | 64      | 256       | 0.0     | 2           | 0.9861   | 0.9861    | 0.9861 | 0.9861 | 0.0688    |
+| Smaller FC    | 32      | 128       | 0.0     | 2           | 0.9845   | 0.9845    | 0.9845 | 0.9845 | 0.0821    |
+| With Dropout  | 32      | 256       | 0.3     | 2           | 0.9848   | 0.9850    | 0.9848 | 0.9848 | 0.0677    |
+| 3 Conv Layers | 32      | 256       | 0.0     | 3           | 0.9877   | 0.9877    | 0.9877 | 0.9877 | 0.0757    |
+
+**Observations:** All configurations performed within a narrow accuracy band (98.45%–98.77%), showing that CNNs are generally robust to moderate structural changes on MNIST. Adding a third convolutional layer gave the best accuracy (98.77%), suggesting deeper feature extraction helps even on a simple dataset. Doubling the number of filters from 32 to 64 improved test loss slightly (0.0688 vs 0.0702), while halving filters to 16 had minimal impact, indicating 16 filters is already sufficient capacity for MNIST. Reducing the FC hidden size to 128 increased test loss the most (0.0821), implying the classification head is a mild bottleneck. Dropout (rate=0.3) produced the lowest test loss (0.0677) despite slightly lower accuracy, consistent with its role as a regularizer that smooths the loss surface. Learning curves are saved to `result/stage_3_result/cnn_ablation_curves.png`.
 
 ## 4. Discussion
 
