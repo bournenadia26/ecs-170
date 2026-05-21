@@ -10,7 +10,7 @@ class RNNClassifier(nn.Module):
         hidden_dim,
         output_dim,
         pad_idx,
-        dropout=0.3
+        dropout=0.5
     ):
         super().__init__()
 
@@ -26,28 +26,36 @@ class RNNClassifier(nn.Module):
             input_size=embed_dim,
             hidden_size=hidden_dim,
             batch_first=True,
+            bidirectional=True,
             nonlinearity="tanh"
         )
 
         self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(hidden_dim, output_dim)
+
+        # bidirectional output = hidden_dim * 2
+        # mean pooling + max pooling = hidden_dim * 4
+        self.fc = nn.Linear(hidden_dim * 4, output_dim)
 
     def forward(self, x):
         embedded = self.embedding(x)
 
-        output, hidden = self.rnn(embedded)
+        outputs, hidden = self.rnn(embedded)
+        # outputs: [batch, seq_len, hidden_dim * 2]
 
-        lengths = (x != self.pad_idx).sum(dim=1)
-        lengths = torch.clamp(lengths, min=1)
+        mask = (x != self.pad_idx).unsqueeze(-1)
+        masked_outputs = outputs * mask
 
-        last_indices = lengths - 1
+        lengths = mask.sum(dim=1).clamp(min=1)
 
-        batch_indices = torch.arange(x.size(0), device=x.device)
+        mean_pool = masked_outputs.sum(dim=1) / lengths
 
-        last_output = output[batch_indices, last_indices]
+        outputs_for_max = outputs.masked_fill(~mask, -1e9)
+        max_pool, _ = outputs_for_max.max(dim=1)
 
-        last_output = self.dropout(last_output)
+        pooled = torch.cat([mean_pool, max_pool], dim=1)
 
-        logits = self.fc(last_output)
+        pooled = self.dropout(pooled)
+
+        logits = self.fc(pooled)
 
         return logits
