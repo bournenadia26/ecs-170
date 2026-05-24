@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Large data files (too big for GitHub)
+stage_4_data/
+stage_4_data.zip
+
+# Temp / editor
+.idea/
+.vscode/
+*.swp
