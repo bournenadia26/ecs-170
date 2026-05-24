@@ -1,0 +1,8 @@
+----- FINAL MNIST RESULTS -----
+Best Config: {'num_filters': 32, 'fc_hidden_size': 256, 'lr': 0.001, 'epochs': 50, 'dropout': 0.0}
+Best Accuracy: 0.9923
+Accuracy: 0.9923
+Precision: 0.9923046186852523
+Recall: 0.9923
+F1: 0.9922984594091582
+Test Loss: 0.05127132128182602

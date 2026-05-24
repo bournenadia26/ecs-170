@@ -1,0 +1,18 @@
+Person 3 – Baseline RNN Text Generation Results
+============================================================
+
+Model: RNN
+----------------------------------------
+Starting words : why did the
+Generated text : why did the meat morning in the mud side you the doctor dam you know a
+
+Starting words : what do you
+Generated text : what do you smell a hole there the first of the
+
+Starting words : i told my
+Generated text : i told my father
+
+Final train loss : 3.4695
+Final val loss   : 5.6221
+Best val loss    : 5.5115
+
