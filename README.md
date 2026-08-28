@@ -1,124 +1,62 @@
-# Sentiment Analysis & Text Generation with RNN / LSTM / GRU
+# ECS 170 — Artificial Intelligence Course Project
 
-**ECS 170 — Introduction to Artificial Intelligence, UC Davis (Stage 4)**  
-Author: Kavosh Hosseini · SID: 924034149 · skhosseini@ucdavis.edu
+**UC Davis, Spring 2026 — Group Project (5 members)**
 
----
+Implementations of classic and deep learning models across a quarter-long, multi-stage
+project: classical classifiers, an MLP, a CNN, an RNN/LSTM/GRU, and a GNN, applied to
+tabular, image, text, and graph data respectively.
 
-## Overview
+## My Contribution
 
-This project implements and compares three recurrent architectures — **Vanilla RNN**, **LSTM**, and **GRU** — across two NLP tasks:
+I was one of five contributors. Across stages, I typically wrote the first working
+implementation of each model — generic, reusable model-builder functions and training
+scaffolding — which teammates then extended with hyperparameter experiments, ablations,
+and evaluation/reporting. I led **Stage 2 (MLP)** end-to-end, and contributed core
+implementation work on Stages 1, 3, and 4. I reviewed but did not implement Stage 5 (GNN).
 
-| Task | Dataset | Best Result |
-|------|---------|-------------|
-| Sentiment Classification | IMDB (25K train / 25K test) | **BiGRU — 87.55% accuracy** |
-| Text Generation | Short Jokes CSV (1,622 jokes) | **RNN — 983.35 perplexity** |
+## Stages
 
----
+| Stage | Task | Models | Datasets |
+|-------|------|--------|----------|
+| 1 | Toy classification | Decision Tree, MLP, SVM | Small synthetic dataset |
+| 2 | Multiclass classification | MLP (baseline + ablation variants) | Provided tabular dataset |
+| 3 | Image classification | CNN | MNIST, ORL (faces), CIFAR |
+| 4 | Text classification & generation | RNN, LSTM, GRU | IMDB sentiment, Short Jokes |
+| 5 | Node classification | GNN (GCN) | Cora, Pubmed, Citeseer |
 
-## Tasks
-
-### Task 1 — Text Classification (IMDB Sentiment)
-Binary sentiment classification (positive / negative) on IMDB movie reviews.  
-LSTM and GRU use **bidirectional processing** for better long-range context.
-
-| Model | Accuracy | Precision | Recall | F1 |
-|-------|----------|-----------|--------|----|
-| RNN | 50.49% | 0.5059 | 0.5049 | 0.4830 |
-| BiLSTM | 87.02% | 0.8706 | 0.8702 | 0.8701 |
-| **BiGRU** | **87.55%** | **0.8755** | **0.8755** | **0.8755** |
-
-> Vanilla RNN fails on long reviews (~234 words avg) due to vanishing gradients.  
-> BiLSTM/BiGRU both exceed the 85% accuracy requirement.
-
-### Task 2 — Text Generation (Short Jokes)
-Next-word language modelling on a dataset of 1,622 short jokes.
-
-| Model | Best Val Loss | Perplexity |
-|-------|--------------|------------|
-| **RNN** | **6.8910** | **983.35** |
-| LSTM | 7.0394 | 1140.68 |
-| GRU | 6.9950 | 1091.12 |
-
-> RNN outperforms gated models here because jokes are short (avg 14.7 words) —  
-> no long-range dependency problem, and the simpler model generalises better on the tiny dataset.
-
----
-
-## Project Structure
+## Repository Structure
 
 ```
-├── stage4_classification.ipynb   # Classification notebook (Tasks 4-2, 4-3, 4-5)
-├── stage4_generation.ipynb       # Generation notebook (Tasks 4-4, 4-5)
-├── generate_notebooks.py         # Script that generates both .ipynb files
-├── fill_report.py                # Script that fills the report template
-├── Stage_4_Report_Filled.docx    # Final report
-├── classification_learning_curves.png
-├── classification_confusion_matrices.png
-└── generation_learning_curves.png
+ECS170_Spring_2026_Source_Code_Template/
+├── local_code/
+│   ├── base_class/       # Shared abstract classes (Dataset, Method, Evaluate, Result, Setting)
+│   ├── stage_1_code/     # Decision Tree, MLP, SVM
+│   ├── stage_2_code/     # MLP (baseline + ablation)
+│   ├── stage_3_code/     # CNN
+│   ├── stage_4_code/     # RNN classifier + generation
+│   └── stage_5_code/     # GNN (teammate-led)
+├── script/                # Per-stage run scripts
+├── data/                  # Provided datasets
+└── result/                # Saved outputs per stage
+
+stage_4_outputs/           # Stage 4 notebooks, filled report, and generated plots
 ```
 
----
-
-## Setup & Usage
-
-### Run on Google Colab (recommended — free T4 GPU)
-
-1. Upload `stage4_classification.ipynb` or `stage4_generation.ipynb` to Colab
-2. Upload `stage_4_data.zip` to Google Drive
-3. In the **Configuration** cell set:
-   ```python
-   DRIVE_ZIP_PATH = '/content/drive/MyDrive/stage_4_data.zip'
-   USE_SUBSET = False   # use full dataset for best accuracy
-   ```
-4. Run all cells
-
-### Regenerate notebooks locally
+## Setup
 
 ```bash
-python3 generate_notebooks.py
+pip install -r requirements.txt
 ```
 
-### Regenerate report (after placing PNGs in this folder)
+Run any stage from the project root, e.g.:
 
 ```bash
-python3 fill_report.py
+cd ECS170_Spring_2026_Source_Code_Template
+python -m script.stage_1_script.script_mlp
 ```
 
----
+## Notes
 
-## Model Architecture
-
-### Classification — `TextRNN`
-```
-Embedding(10000, 128)
-→ Dropout(0.3)
-→ RNN / BiLSTM / BiGRU  (2 layers, hidden=256)
-→ Dropout(0.3) on last hidden state
-→ Linear(256 [or 512 for bidirectional], 1)
-→ BCEWithLogitsLoss
-```
-
-### Generation — `JokeLM`
-```
-Embedding(vocab, 128)
-→ Dropout(0.3)
-→ RNN / LSTM / GRU  (2 layers, hidden=256)
-→ Dropout(0.3)
-→ Linear(256, vocab_size)
-→ CrossEntropyLoss
-```
-
----
-
-## Requirements
-
-```
-torch
-scikit-learn
-matplotlib
-seaborn
-python-docx
-```
-
-Install via: `pip install torch scikit-learn matplotlib seaborn python-docx`
+This was a required team assignment (max team size: 5) for ECS 170. Work was
+distributed across teammates per stage; the breakdown above reflects my own
+contribution, not the full team's individual credits.
